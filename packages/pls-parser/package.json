@@ -1,0 +1,20 @@
+{
+	"name": "tps-parser",
+	"module": "index.ts",
+	"type": "module",
+	"devDependencies": {
+		"@types/estree": "^1.0.2",
+		"bun-types": "latest",
+		"typescript": "^5.2.2"
+	},
+	"scripts": {
+		"test-only": "bun test --watch --only --clear-screen",
+		"test": "bun test --watch --clear-screen"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	},
+	"dependencies": {
+		"acorn": "^8.10.0"
+	}
+}
