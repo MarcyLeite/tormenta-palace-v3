@@ -1,0 +1,7 @@
+{
+	"name": "tormenta-vanilla",
+	"routine": {
+		"sheet-init": ["compositor"],
+		"form-tabs": []
+	}
+}
