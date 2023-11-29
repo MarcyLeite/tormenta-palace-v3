@@ -1,3 +1,5 @@
 {
-	"recommendations": ["ms-vscode.vscode-typescript-next"]
+	"recommendations": [
+		"oven.bun-vscode"
+	]
 }
