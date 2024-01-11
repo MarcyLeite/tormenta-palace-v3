@@ -61,7 +61,7 @@ web_modules/
 
 # TypeScript cache
 
-\*.tsbuildinfo
+*.tsbuildinfo
 
 # Optional npm cache directory
 
@@ -174,3 +174,6 @@ dist
 # Finder (MacOS) folder config
 .DS_Store
 
+* text=auto eol=lf
+*.{cmd,[cC][mM][dD]} text eol=crlf
+*.{bat,[bB][aA][tT]} text eol=crlf
