@@ -52,26 +52,17 @@ export interface ParserMeta {
 	returnValue?: any
 }
 
-interface ParserData {
-	scope: Scope
-	meta: ParserMeta
+const clone = (obj: any) => {
+	return Object.assign({}, obj)
 }
 
-const createChildParserData = (parentScope: any, parentMeta: ParserMeta) => {
-	return { scope: Object.assign({}, parentScope), meta: Object.assign({}, parentMeta) }
-}
-
-const updateParentData = (parentData: ParserData, childData: ParserData) => {
-	const parentScope = parentData.scope,
-		childScope = childData.scope
-
-	for (const key of Object.keys(parentScope)) {
-		parentScope[key] = childScope[key]
+const updateOriginal = (original: any, clone: any) => {
+	for (const key of Object.keys(original)) {
+		original[key] = clone[key]
 	}
+}
 
-	const parentMeta = parentData.meta,
-		childMeta = childData.meta
-
+const updateParentMeta = (parentMeta: ParserMeta, childMeta: ParserMeta) => {
 	parentMeta.doReturn = childMeta.doReturn
 	parentMeta.doBreak = childMeta.doBreak
 	parentMeta.doContinue = childMeta.doContinue
@@ -80,30 +71,29 @@ const updateParentData = (parentData: ParserData, childData: ParserData) => {
 
 export const statementHandler: Handler<Statement, Scope> = (node, scope, meta: ParserMeta) => {
 	// NOT HANDLING EXCEPTIONS
-	const { scope: localScope, meta: localMeta } = createChildParserData(scope, meta)
+	const localMeta = clone(meta)
 
-	expressionStatementHandler(node as ExpressionStatement, localScope)
-	blockStatementHandler(node as BlockStatement, localScope, localMeta)
-	staticBlockHandler(node as StaticBlock, localScope, localMeta)
+	expressionStatementHandler(node as ExpressionStatement, scope)
+	blockStatementHandler(node as BlockStatement, scope, localMeta)
+	staticBlockHandler(node as StaticBlock, scope, localMeta)
 	// emptyStatementHandler(node as EmptyStatement, localScope)
 	// debuggerStatementHandler(node as DebuggerStatement, localScope)
 	// withStatementHandler(node as WithStatement, localScope)
-	returnStatementHandler(node as ReturnStatement, localScope, localMeta)
+	returnStatementHandler(node as ReturnStatement, scope, localMeta)
 	// labeledStatementHandler(node as LabeledStatement, localScope, localMeta)
-	breakStatementHandler(node as BreakStatement, localScope, localMeta)
-	continueStatementHandler(node as ContinueStatement, localScope, localMeta)
+	breakStatementHandler(node as BreakStatement, scope, localMeta)
+	continueStatementHandler(node as ContinueStatement, scope, localMeta)
 
-	ifStatementHandler(node as IfStatement, localScope, localMeta)
+	ifStatementHandler(node as IfStatement, scope, localMeta)
 	// switchStatementHandler(node as SwitchStatement, localScope)
-	whileStatementHandler(node as WhileStatement, localScope, localMeta)
+	whileStatementHandler(node as WhileStatement, scope, localMeta)
 	// doWhileStatementHandler(node as DoWhileStatement, localScope)
-	forStatementHandler(node as ForStatement, localScope, localMeta)
-	forInStatementHandler(node as ForInStatement, localScope, localMeta)
-	forOfStatementHandler(node as ForOfStatement, localScope, localMeta)
-	variableDeclarationHandler(node as VariableDeclaration, localScope, localMeta)
+	forStatementHandler(node as ForStatement, scope, localMeta)
+	forInStatementHandler(node as ForInStatement, scope, localMeta)
+	forOfStatementHandler(node as ForOfStatement, scope, localMeta)
+	variableDeclarationHandler(node as VariableDeclaration, scope, localMeta)
 
-	updateParentData({ scope, meta }, { scope: localScope, meta: localMeta })
-	return localScope
+	updateParentMeta(meta, localMeta)
 }
 const variableDeclarationHandler: Handler<VariableDeclaration, undefined> = (node, scope) => {
 	if (node.type !== 'VariableDeclaration') return
@@ -188,26 +178,11 @@ const arrayExpressionHandler: Handler<ArrayExpression, unknown> = (node, scope) 
 	}
 	return arr
 }
-export type ArrowFunctionArgument = Expression | SpreadElement
+
 const arrowFunctionExpressionHandler: Handler<ArrowFunctionExpression, unknown> = (node, scope) => {
 	const body = node.body
 
-	const paramHandler = (scopeSnapshot: Scope, argumentList: ArrowFunctionArgument[]) => {
-		for (const iStr in node.params) {
-			const i = Number(iStr)
-			const param = node.params[i]
-			const argument = argumentList[i]
-
-			let value: any
-			if (!argument) value = undefined
-			else if (argument.type === 'SpreadElement') continue
-			else value = expressionHandler(argument, scopeSnapshot)
-
-			patternHandler(param, scopeSnapshot, value)
-		}
-	}
-
-	return (scopeSnapshot: Scope, argumentList: ArrowFunctionArgument[]) => {
+	return (...args: any) => {
 		const meta: ParserMeta = {
 			onFunction: true,
 			onLoop: false,
@@ -217,16 +192,75 @@ const arrowFunctionExpressionHandler: Handler<ArrowFunctionExpression, unknown> 
 			doBreak: false,
 			doContinue: false,
 		}
-		const { scope: localScope, meta: localMeta } = createChildParserData(scopeSnapshot, meta)
 
-		paramHandler(localScope, argumentList)
-		if (body.type === 'BlockStatement') blockStatementHandler(body, localScope, localMeta)
+		const localScope = clone(scope)
+
+		let argIndex = 0
+		for (const paramNode of node.params) {
+			patternHandler(paramNode, localScope, args[argIndex])
+			argIndex++
+		}
+
+		if (body.type === 'BlockStatement') statementHandler(body, localScope, meta)
 		else expressionHandler(body, localScope)
 
-		updateParentData({ scope: scopeSnapshot, meta }, { scope: localScope, meta: localMeta })
+		updateOriginal(scope, localScope)
+
 		return meta.returnValue
 	}
+
+	// const paramHandler = (scopeSnapshot: Scope, argumentList: ArrowFunctionArgument[]) => {
+	// 	for (const iStr in node.params) {
+	// 		const i = Number(iStr)
+	// 		const param = node.params[i]
+	// 		const argument = argumentList[i]
+
+	// 		let value: any
+	// 		if (!argument) value = undefined
+	// 		else if (argument.type === 'SpreadElement') continue
+	// 		else value = expressionHandler(argument, scopeSnapshot)
+
+	// 		patternHandler(param, scopeSnapshot, value)
+	// 	}
+	// }
+
+	// return (scopeSnapshot: Scope) => {
+	// 	const meta: ParserMeta = {
+	// 		onFunction: true,
+	// 		onLoop: false,
+	// 		onSwitch: false,
+
+	// 		doReturn: false,
+	// 		doBreak: false,
+	// 		doContinue: false,
+	// 	}
+
+	// 	const getLocals = (argumentList: ArrowFunctionArgument[]) => {
+	// 		Object.assign(scopeSnapshot, scope)
+
+	// 		const { scope: localScope, meta: localMeta } = createChildParserData(
+	// 			scopeSnapshot,
+	// 			meta
+	// 		)
+	// 		paramHandler(localScope, argumentList)
+	// 		return { localScope, localMeta }
+	// 	}
+
+	// 	const exec = (localScope: Scope, localMeta: ParserMeta) => {
+	// 		if (body.type === 'BlockStatement') blockStatementHandler(body, localScope, localMeta)
+	// 		else expressionHandler(body, localScope)
+
+	// 		updateParentData({ scope: scopeSnapshot, meta }, { scope: localScope, meta: localMeta })
+	// 		return meta.returnValue
+	// 	}
+
+	// 	return {
+	// 		getLocals,
+	// 		exec,
+	// 	}
+	// }
 }
+
 const assignmentExpressionHandler: Handler<AssignmentExpression, unknown> = (node, scope) => {
 	if (node.type !== 'AssignmentExpression') return
 	const left = node.left
@@ -281,9 +315,25 @@ const binaryExpressionHandler: Handler<BinaryExpression, unknown> = (node, scope
 	// if (operator == 'instanceof') return left instanceof right
 	if (operator == '|') return left | right
 }
+
 const callExpressionHandler: Handler<CallExpression, unknown> = (node, scope) => {
+	const argumentValueList = []
+	for (const argument of node.arguments) {
+		argumentValueList.push(expressionHandler(argument as Expression, scope))
+	}
 	const callee = expressionHandler(node.callee as Expression, scope) as Function
-	return callee(scope, node.arguments)
+
+	const result = callee(...argumentValueList)
+
+	return result
+
+	// const calleeFactory = expressionHandler(
+	// 	node.callee as Expression,
+	// 	scope
+	// ) as PalaceArrowFunctionFactory
+	// const callee = calleeFactory(scope)
+	// const { localScope, localMeta } = callee.getLocals(node.arguments)
+	// return callee.exec(localScope, localMeta)
 }
 const conditionalExpressionHandler: Handler<ConditionalExpression, unknown> = (node, scope) => {
 	const test = expressionHandler(node.test, scope)
@@ -323,10 +373,14 @@ const objectExpressionHandler: Handler<ObjectExpression, unknown> = (node, scope
 const blockStatementHandler: Handler<BlockStatement, unknown> = (node, scope, meta: ParserMeta) => {
 	if (node.type !== 'BlockStatement') return
 
+	const localScope = clone(scope)
+
 	for (const blockNode of node.body) {
-		Object.assign(scope, statementHandler(blockNode, scope, meta))
+		Object.assign(localScope, statementHandler(blockNode, localScope, meta))
 		if (meta.doBreak || meta.doContinue || meta.doReturn) break
 	}
+
+	updateOriginal(scope, localScope)
 }
 const sequenceExpressionHandler: Handler<SequenceExpression, unknown> = (node, scope) => {
 	let lastResult: unknown
@@ -393,7 +447,8 @@ const whileStatementHandler: Handler<WhileStatement, unknown> = (node, scope, me
 // const doWhileStatementHandler: Handler<DoWhileStatement, unknown> = (node, scope) => {} // -----
 const forStatementHandler: Handler<ForStatement, unknown> = (node, scope, meta: ParserMeta) => {
 	if (node.type !== 'ForStatement') return
-	const { scope: localScope, meta: localMeta } = createChildParserData(scope, meta)
+	const localMeta = clone(meta)
+	const localScope = clone(scope)
 
 	localMeta.onLoop = true
 
@@ -419,8 +474,10 @@ const forStatementHandler: Handler<ForStatement, unknown> = (node, scope, meta: 
 		localMeta.doContinue = false
 	}
 
-	updateParentData({ scope, meta }, { scope: localScope, meta: localMeta })
+	updateParentMeta(meta, localMeta)
+	updateOriginal(scope, localScope)
 }
+
 const forInStatementHandler: Handler<ForInStatement, unknown> = (node, scope, meta) => {
 	if (node.type !== 'ForInStatement') return
 	const right = expressionHandler(node.right, scope) as any

@@ -1,15 +1,13 @@
-import { Program } from 'estree'
+import { Program, Statement } from 'estree'
 import { palParser } from '@/pal-parser'
 import { statementHandler, ParserMeta } from '@/handler'
-import { Statement } from 'estree'
-export const extractModel = (palCode: string) => {
+
+export const executePlsCode = (palCode: string, scope: any = {}) => {
 	const program = palParser.parse(palCode, {
 		ecmaVersion: 2023,
 		sourceType: 'module',
-	}) as unknown as Program
+	}) as Program
 
-	const scope: any = {}
-	const models: any = {}
 	const meta: ParserMeta = {
 		onFunction: false,
 		onLoop: false,
@@ -20,10 +18,9 @@ export const extractModel = (palCode: string) => {
 		doContinue: false,
 	}
 
-	const modelNodeList: any[] = []
 	for (const node of program.body) {
 		Object.assign(scope, statementHandler(node as Statement, scope, meta))
 	}
 
-	return { scope, models }
+	return scope
 }

@@ -1,4 +1,4 @@
-import { extractModel } from '@/evaluator'
+import { executePlsCode } from '@/evaluator'
 import { describe, expect, test } from 'bun:test'
 
 const loopStatementTest = () => {
@@ -6,7 +6,7 @@ const loopStatementTest = () => {
 		const jsString = `
 const value = 0
 for (let i = 1; i <= 4; value += i++);`
-		const { scope } = extractModel(jsString)
+		const scope = executePlsCode(jsString)
 		expect(scope.value).toBe(10)
 		expect(scope.i).toBeUndefined()
 	})
@@ -16,7 +16,7 @@ const value = 0
 for (let i = 1; i <= 4; value += i++) {
 	value += i
 }`
-		const { scope } = extractModel(jsString)
+		const scope = executePlsCode(jsString)
 		expect(scope.value).toBe(20)
 		expect(scope.i).toBeUndefined()
 	})
@@ -32,7 +32,7 @@ while (doContinue) {
 	}
 	i++
 }`
-		const { scope } = extractModel(jsString)
+		const scope = executePlsCode(jsString)
 		expect(scope.doContinue).toBe(false)
 		expect(scope.i).toBe(36)
 		expect(scope.surPlus).toBeUndefined()
@@ -44,7 +44,7 @@ const value = 'z'
 for (const key in obj) {
 	value += key
 }`
-		const { scope } = extractModel(jsString)
+		const scope = executePlsCode(jsString)
 		expect(scope.value).toBe('zabc')
 	})
 	test('should loop using for in statement in list', () => {
@@ -54,7 +54,7 @@ const value = '0'
 for (const key in arr) {
 	value += key
 }`
-		const { scope } = extractModel(jsString)
+		const scope = executePlsCode(jsString)
 		expect(scope.value).toBe('0012')
 	})
 	test('should loop using for of statement', () => {
@@ -64,7 +64,7 @@ const value = 'a'
 for (const arrValue of arr) {
 	value += arrValue
 }`
-		const { scope } = extractModel(jsString)
+		const scope = executePlsCode(jsString)
 		expect(scope.value).toBe('axyz')
 	})
 
@@ -75,7 +75,7 @@ for (let i = 0; i < 10; i++) {
 	if (i === 6) break
 	value++
 }`
-		const { scope } = extractModel(jsString)
+		const scope = executePlsCode(jsString)
 		expect(scope.value).toBe(6)
 	})
 	test('should break in for statement', () => {
@@ -85,7 +85,7 @@ for (let i = 0; i < 10; i++) {
 	if (i === 6) continue
 	value++
 }`
-		const { scope } = extractModel(jsString)
+		const scope = executePlsCode(jsString)
 		expect(scope.value).toBe(9)
 	})
 }
@@ -97,7 +97,7 @@ const value1 = true && true
 const value2 = true && false
 const value3 = false && true
 const value4 = false && false`
-		const { scope } = extractModel(jsString)
+		const scope = executePlsCode(jsString)
 		expect(scope.value1).toBe(true)
 		expect(scope.value2).toBe(false)
 		expect(scope.value3).toBe(false)
@@ -109,7 +109,7 @@ const value1 = true || true
 const value2 = true || false
 const value3 = false || true
 const value4 = false || false`
-		const { scope } = extractModel(jsString)
+		const scope = executePlsCode(jsString)
 		expect(scope.value1).toBe(true)
 		expect(scope.value2).toBe(true)
 		expect(scope.value3).toBe(true)
@@ -121,14 +121,14 @@ const conditionalExpressionTest = () => {
 		const jsString = `
 let foo = true
 const value = foo ? 1 : 2`
-		const { scope } = extractModel(jsString)
+		const scope = executePlsCode(jsString)
 		expect(scope.value).toBe(1)
 	})
 	test('should get false side of conditional expression', () => {
 		const jsString = `
 let foo = false
 const value = foo ? 1 : 2`
-		const { scope } = extractModel(jsString)
+		const scope = executePlsCode(jsString)
 		expect(scope.value).toBe(2)
 	})
 }
@@ -138,7 +138,7 @@ const ifStatementTest = () => {
 		const jsString = `
 let value = 'foo'
 if (true) value = 'bar'`
-		const { scope } = extractModel(jsString)
+		const scope = executePlsCode(jsString)
 		expect(scope.value).toBe('bar')
 	})
 	test('should not update value in else statement if false', () => {
@@ -146,7 +146,7 @@ if (true) value = 'bar'`
 let value = 'foo'
 if (false) value = 'bar'
 else value = 'baz'`
-		const { scope } = extractModel(jsString)
+		const scope = executePlsCode(jsString)
 		expect(scope.value).toBe('baz')
 	})
 }
@@ -159,7 +159,7 @@ if (true) {
 	value += 3
 	value += 4
 }`
-		const { scope } = extractModel(jsString)
+		const scope = executePlsCode(jsString)
 		expect(scope.value).toBe(9)
 	})
 	test('should not pass local scope variable to global scope', () => {
@@ -171,7 +171,7 @@ if (true) {
 	value += 4
 	value = foo + 1
 }`
-		const { scope } = extractModel(jsString)
+		const scope = executePlsCode(jsString)
 		expect(scope.value).toBe(6)
 		expect(scope.foo).toBeUndefined()
 	})
@@ -187,7 +187,7 @@ const updateValue = () => {
 }
 updateValue()
 `
-		const { scope } = extractModel(jsString)
+		const scope = executePlsCode(jsString)
 		expect(scope.updateValue).toBeFunction()
 		expect(scope.plus).toBeUndefined()
 		expect(scope.value).toBe(5)
@@ -200,7 +200,7 @@ const updateValue = (plus) => {
 }
 updateValue(5)
 `
-		const { scope } = extractModel(jsString)
+		const scope = executePlsCode(jsString)
 		expect(scope.plus).toBeUndefined()
 		expect(scope.value).toBe(7)
 	})
@@ -215,7 +215,7 @@ const obj = {
 }
 
 obj.updateValue()`
-		const { scope } = extractModel(jsString)
+		const scope = executePlsCode(jsString)
 		expect(scope.value).toBe('bar')
 	})
 	test('should get returned value from function', () => {
@@ -225,7 +225,7 @@ const getValue = () => {
 }
 
 const value = getValue()`
-		const { scope } = extractModel(jsString)
+		const scope = executePlsCode(jsString)
 		expect(scope.value).toBe('baz')
 	})
 	test('should get returned undefined from function', () => {
@@ -235,8 +235,21 @@ const getValue = () => {
 }
 
 const value = getValue()`
-		const { scope } = extractModel(jsString)
+		const scope = executePlsCode(jsString)
 		expect(scope.value).toBeNull()
+	})
+	test('should work when call function in different scopes', () => {
+		const jsString = `
+const testFunc = () => {
+	let a = 2
+	return () => {
+		a += 1
+		return a
+	}
+}
+let b = testFunc()()`
+		const scope = executePlsCode(jsString)
+		expect(scope.b).toBe(3)
 	})
 }
 
@@ -261,7 +274,7 @@ const value = getValue()`
 // 	}
 // 	test.only('should return value correctly in switch [1]', () => {
 // 		const jsString = generateJsString('foo')
-// 		const { scope } = extractModel(jsString)
+// 		const scope = executePlsCode(jsString)
 // 		expect(scope.value).toBe(1)
 // 	})
 // }
