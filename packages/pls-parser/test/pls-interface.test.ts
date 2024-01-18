@@ -1,4 +1,3 @@
-import { Scope } from '@/handler'
 import { engineFactory } from '@/engine'
 import { describe, expect, test } from 'bun:test'
 

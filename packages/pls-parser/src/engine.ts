@@ -1,9 +1,14 @@
 import { executePlsCode } from './evaluator'
 
+export interface PlsEngine {
+	setGlobal: (key: string, value: any) => void
+	run: (plsCode: string) => void
+}
+
 export const engineFactory = () => {
 	const globalScope: any = {}
 
-	return {
+	const engineInterface: PlsEngine = {
 		setGlobal: (key: string, value: any) => {
 			globalScope[key] = value
 		},
@@ -11,4 +16,5 @@ export const engineFactory = () => {
 			executePlsCode(plsCode, globalScope)
 		},
 	}
+	return engineInterface
 }

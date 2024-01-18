@@ -1,1 +1,5 @@
-console.log('Hello via Bun!')
+import { engineFactory } from '@/engine'
+
+export default {
+	engineFactory,
+}
