@@ -272,7 +272,7 @@ let b = testFunc()()`
 // 		value = -1
 // }`
 // 	}
-// 	test.only('should return value correctly in switch [1]', () => {
+// 	test('should return value correctly in switch [1]', () => {
 // 		const jsString = generateJsString('foo')
 // 		const scope = executePlsCode(jsString)
 // 		expect(scope.value).toBe(1)
