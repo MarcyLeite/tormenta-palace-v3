@@ -1,4 +1,4 @@
-import { engineFactory } from '@/engine'
+import { parserFactory } from '@/parser'
 import { describe, expect, test } from 'bun:test'
 
 describe('Palace Interface', () => {
@@ -10,7 +10,7 @@ describe('Palace Interface', () => {
 			},
 		}
 
-		const plsEngine = engineFactory()
+		const plsEngine = parserFactory()
 		plsEngine.setGlobal('simpleInterface', simpleInterface)
 		plsEngine.run('simpleInterface.awnserQuestion("42")')
 

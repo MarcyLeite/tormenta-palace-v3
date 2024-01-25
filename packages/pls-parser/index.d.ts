@@ -1,3 +1,3 @@
-import { PlsEngine } from './src/engine'
+import { PlsEngine } from './src/parser'
 
-declare const engineFactory: () => PlsEngine
+declare const parserFactory: () => PlsEngine

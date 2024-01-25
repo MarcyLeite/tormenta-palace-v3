@@ -1,14 +1,14 @@
 import { executePlsCode } from './evaluator'
 
-export interface PlsEngine {
+export interface PlsParser {
 	setGlobal: (key: string, value: any) => void
 	run: (plsCode: string) => void
 }
 
-export const engineFactory = () => {
+export const parserFactory = () => {
 	const globalScope: any = {}
 
-	const engineInterface: PlsEngine = {
+	const parserInterface: PlsParser = {
 		setGlobal: (key: string, value: any) => {
 			globalScope[key] = value
 		},
@@ -16,5 +16,5 @@ export const engineFactory = () => {
 			executePlsCode(plsCode, globalScope)
 		},
 	}
-	return engineInterface
+	return parserInterface
 }

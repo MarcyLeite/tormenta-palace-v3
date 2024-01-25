@@ -1,5 +1,5 @@
-import { engineFactory } from '@/engine'
+import { parserFactory } from '@/parser'
 
 export default {
-	engineFactory,
+	parserFactory,
 }
