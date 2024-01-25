@@ -1,29 +1,29 @@
 const generateFilter = (keyList: string[]) => {
-	return (filteredDict: any, [key, registry]) => {
-		if (keyList.includes(key)) filteredDict[key] = registry
+	return (filteredDict: any, [key, entity]) => {
+		if (keyList.includes(key)) filteredDict[key] = entity
 		return filteredDict
 	}
 }
 
-const getRegistries = (keyList: string[]) => {
+const getEntities = (keyList: string[]) => {
 	const filter = generateFilter(keyList)
 
-	const registryDict = palace.registry.getAll()
-	const registryEntriesList = Object.entries<any>(registryDict)
-	const registryDictFiltered = registryEntriesList.reduce(filter, {})
+	const entityDict = palace.entity.getAll()
+	const entityEntriesList = Object.entries<any>(entityDict)
+	const entityDictFiltered = entityEntriesList.reduce(filter, {})
 
-	return registryDictFiltered
+	return entityDictFiltered
 }
 const toField = (label: string, pool: string) => {
-	const registryList = getRegistries([pool])
+	const entityList = getEntities([pool])
 
 	const field: any[] = []
-	for (const registry of registryList) {
+	for (const entity of entityList) {
 		field.push()
 	}
 }
 
 export default {
-	getRegistries,
+	getEntities,
 	toField,
 }

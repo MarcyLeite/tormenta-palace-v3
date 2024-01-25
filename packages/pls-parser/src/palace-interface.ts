@@ -1,68 +1,68 @@
-type RegistryArgs = string | number | boolean
+type EntityArgs = string | number | boolean
 type BuilderStatus = 'ok' | 'warn' | 'error'
 
-interface RegistryMeta {
-    title: string
-    description: string
-    pools: string[]
+interface EntityMeta {
+	title: string
+	description: string
+	pools: string[]
 }
 
-type RegistryFactory = (args: RegistryArgs[]) => {
-    getBuilderInfo?: () => {
-        fields: Field[]
-        status: BuilderStatus
-    }
-    updateSheet?: (queue: QueueItem[]) => void
+type EntityFactory = (args: EntityArgs[]) => {
+	getBuilderInfo?: () => {
+		fields: Field[]
+		status: BuilderStatus
+	}
+	updateSheet?: (queue: QueueItem[]) => void
 }
 
 type Field = any
 type QueueItem = any
 type ComposerFunction = () => any
 
-type RegistryRegister = (id: string, meta: RegistryMeta, registryFactory?: RegistryFactory) => void
-type RegistryGetAll = () => Dict<RegistryMeta>
+type EntityRegister = (id: string, meta: EntityMeta, entityFactory?: EntityFactory) => void
+type EntityGetAll = () => Dict<EntityMeta>
 
 interface PalaceInterface {
-    registry: {
-        register: RegistryRegister
-        getAll: RegistryGetAll
-    }
-    composer: {
-        register: (composerFunction: ComposerFunction) => void
-    }
+	entity: {
+		register: EntityRegister
+		getAll: EntityGetAll
+	}
+	composer: {
+		register: (composerFunction: ComposerFunction) => void
+	}
 }
 
-export default () => {    
-    const registryDict: Dict<{meta: RegistryMeta, factory?: RegistryFactory}> = {}
-    
-    const registerRegistry: RegistryRegister = (id, meta, registryFactory) => {
-        registryDict[id] = {meta, factory: registryFactory}
-    }
+export default () => {
+	const entityDict: Dict<{ meta: EntityMeta; factory?: EntityFactory }> = {}
 
-    const getAllRegistries: RegistryGetAll = () => {
-        return Object.entries(registryDict).reduce((dict, [key, value]) => {
-            if (!value) return dict
-            
-            dict[key] = value.meta
-            return dict
-        }, {} as Dict<RegistryMeta>)
-    }
+	const registerEntity: EntityRegister = (id, meta, entityFactory) => {
+		entityDict[id] = { meta, factory: entityFactory }
+	}
 
-    const composerList: Function[] = []
+	const getAllEntities: EntityGetAll = () => {
+		return Object.entries(entityDict).reduce((dict, [key, value]) => {
+			if (!value) return dict
 
-    const palaceInterface: PalaceInterface = {
-        registry: {
-            register: registerRegistry,
-            getAll: getAllRegistries
-        },
-        composer: {
-            register: (callback: Function) => {
-                composerList.push(callback)
-            }
-        }
-    }
+			dict[key] = value.meta
+			return dict
+		}, {} as Dict<EntityMeta>)
+	}
 
-    return {
-        interface: palaceInterface
-    }
+	const composerList: Function[] = []
+
+	const palaceInterface: PalaceInterface = {
+		entity: {
+			register: registerEntity,
+			getAll: getAllEntities,
+		},
+		composer: {
+			register: (callback: Function) => {
+				composerList.push(callback)
+			},
+		},
+	}
+
+	return {
+		interface: palaceInterface,
+	}
 }

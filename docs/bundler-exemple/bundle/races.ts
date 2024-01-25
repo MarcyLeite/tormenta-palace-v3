@@ -6,7 +6,7 @@ const meta = {
 	pools: ['aspect'],
 }
 
-const sheetBehavior: RegistrySheetBehavior = (args) => {
+const sheetBehavior: EntitySheetBehavior = (args) => {
 	let chosenRaceId: string = args[0].toString()
 	const getBuilderInfo = () => {
 		let status: BuilderStatus = 'warn'
@@ -30,4 +30,4 @@ const sheetBehavior: RegistrySheetBehavior = (args) => {
 	}
 }
 
-palace.registry.register('aspect.raca', meta, sheetBehavior)
+palace.entity.register('aspect.raca', meta, sheetBehavior)

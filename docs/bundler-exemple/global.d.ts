@@ -5,9 +5,9 @@ type QueueItem = any
 type ComposerFunction = () => any
 
 interface Palace {
-	registry: {
-		register: (id: string, meta: RegistryMeta, sheetBehavior?: RegistrySheetBehavior) => void
-		getAll: () => Dict<RegistryMeta>
+	entity: {
+		register: (id: string, meta: EntityMeta, sheetBehavior?: EntitySheetBehavior) => void
+		getAll: () => Dict<EntityMeta>
 	}
 	composer: {
 		register: (composerFunction: ComposerFunction) => void
@@ -15,16 +15,16 @@ interface Palace {
 }
 
 declare global {
-	type RegistryArgs = string | number | boolean
+	type EntityArgs = string | number | boolean
 	type BuilderStatus = 'ok' | 'warn' | 'error'
 
-	interface RegistryMeta {
+	interface EntityMeta {
 		title: string
 		description: string
 		pools: string[]
 	}
 
-	type RegistrySheetBehavior = (args: RegistryArgs[]) => {
+	type EntitySheetBehavior = (args: EntityArgs[]) => {
 		getBuilderInfo?: () => {
 			fields: Field[]
 			status: BuilderStatus

@@ -3,15 +3,15 @@ type QueueItem = any
 type ComposerFunction = () => any
 type BuilderStatus = 'ok' | 'warn' | 'error'
 
-export interface RegistryMeta {
+export interface EntityMeta {
 	title: string
 	description: string
 	pools: string[]
 }
 
-type RegistryArgs = string | number | boolean
+type EntityArgs = string | number | boolean
 
-export type RegistrySheetBehavior = (args: RegistryArgs[]) => {
+export type EntitySheetBehavior = (args: EntityArgs[]) => {
 	getBuilderInfo?: () => {
 		fields: Field[]
 		status: BuilderStatus
@@ -20,9 +20,9 @@ export type RegistrySheetBehavior = (args: RegistryArgs[]) => {
 }
 
 export interface PalacePlsInterface {
-	registry: {
-		register: (id: string, meta: RegistryMeta, sheetBehavior?: RegistrySheetBehavior) => void
-		getAll: () => Dict<RegistryMeta>
+	entity: {
+		register: (id: string, meta: EntityMeta, sheetBehavior?: EntitySheetBehavior) => void
+		getAll: () => Dict<EntityMeta>
 	}
 	composer: {
 		register: (composerFunction: ComposerFunction) => void
