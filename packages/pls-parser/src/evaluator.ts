@@ -1,9 +1,9 @@
+import { Parser } from 'acorn'
 import { Program, Statement } from 'estree'
-import { palParser } from '@/pal-parser'
 import { statementHandler, ParserMeta } from '@/handler'
 
 export const executePlsCode = (palCode: string, scope: any = {}) => {
-	const program = palParser.parse(palCode, {
+	const program = Parser.parse(palCode, {
 		ecmaVersion: 2023,
 		sourceType: 'module',
 	}) as Program
