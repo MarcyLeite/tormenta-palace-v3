@@ -12,11 +12,21 @@ palace.entity.register('attribute.car', {
 	pools: ['attribute'],
 })
 
-palace.composer.register(() => {
+const attributes = {
+	des: -5,
+	car: -5,
+}
+
+const builderBehavior = () => {
 	return {
-		attributes: {
-			des: ATTRIBUTE_BASE_VALUE,
-			car: ATTRIBUTE_BASE_VALUE,
+		updateSheet: (sheet) => {
+			sheet.attributes = attributes
+			return sheet
 		},
 	}
+}
+
+palace.entity.register('attributes', {
+	builderBehavior: builderBehavior,
+	composePhase: true,
 })
