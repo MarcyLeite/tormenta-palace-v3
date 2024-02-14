@@ -134,12 +134,29 @@ obj.foo = 2`
 		const scope = executePlsCode(jsString)
 		expect(scope.obj).toStrictEqual({ foo: 2 })
 	})
-	test('should update object property', () => {
+	test('should update object property using key instead of property', () => {
 		const jsString = `
 const obj = { foo: 1 }
 obj['foo'] = 2`
 		const scope = executePlsCode(jsString)
 		expect(scope.obj).toStrictEqual({ foo: 2 })
+	})
+	test('should update object property using computed in key', () => {
+		const jsString = `
+const key = 'foo'
+const obj = { foo: 1 }
+obj[key] = 2`
+
+		const scope = executePlsCode(jsString)
+		expect(scope.obj).toStrictEqual({ foo: 2 })
+	})
+	test('should get value from array', () => {
+		const jsString = `
+const arr = ['foo']
+const bar = arr[0]`
+
+		const scope = executePlsCode(jsString)
+		expect(scope.bar).toBe('foo')
 	})
 }
 

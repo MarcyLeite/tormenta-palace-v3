@@ -52,8 +52,26 @@ export interface ParserMeta {
 	returnValue?: any
 }
 
+const cloneIfObject = (cloneObj: any, key: string, value: any) => {
+	if (typeof value == 'object') {
+		if (Array.isArray(value)) {
+			cloneObj[key] = [...value]
+			return true
+		}
+
+		cloneObj[key] = clone(value)
+		return true
+	}
+	return false
+}
+
 const clone = (obj: any) => {
-	return Object.assign({}, obj)
+	const cloneObj: any = {}
+	for (const [key, value] of Object.entries(obj)) {
+		if (cloneIfObject(cloneObj, key, value)) continue
+		cloneObj[key] = value
+	}
+	return cloneObj
 }
 
 const updateOriginal = (original: any, clone: any) => {
@@ -72,7 +90,6 @@ const updateParentMeta = (parentMeta: ParserMeta, childMeta: ParserMeta) => {
 export const statementHandler: Handler<Statement, Scope> = (node, scope, meta: ParserMeta) => {
 	// NOT HANDLING EXCEPTIONS
 	const localMeta = clone(meta)
-
 	expressionStatementHandler(node as ExpressionStatement, scope)
 	blockStatementHandler(node as BlockStatement, scope, localMeta)
 	staticBlockHandler(node as StaticBlock, scope, localMeta)
@@ -107,6 +124,7 @@ const variableDeclaratorHandler: Handler<VariableDeclarator, undefined> = (node,
 	if (node.init === null) value = null
 	else if (node.init === undefined) value = undefined
 	else value = expressionHandler(node.init as Expression, scope)
+
 	patternHandler(node.id, scope, value)
 }
 const expressionStatementHandler: Handler<ExpressionStatement, unknown> = (node, scope) => {
@@ -321,6 +339,7 @@ const callExpressionHandler: Handler<CallExpression, unknown> = (node, scope) =>
 	for (const argument of node.arguments) {
 		argumentValueList.push(expressionHandler(argument as Expression, scope))
 	}
+
 	const callee = expressionHandler(node.callee as Expression, scope) as Function
 
 	const result = callee(...argumentValueList)
@@ -350,6 +369,7 @@ const literalHandler: Handler<Literal, unknown> = (node, scope) => {
 }
 const logicalExpressionHandler: Handler<LogicalExpression, unknown> = (node, scope) => {
 	const left = expressionHandler(node.left, scope)
+	if (node.operator === '&&' && !left) return false
 	const right = expressionHandler(node.right, scope)
 	if (node.operator === '&&') return left && right
 	if (node.operator === '||') return left || right
@@ -357,8 +377,22 @@ const logicalExpressionHandler: Handler<LogicalExpression, unknown> = (node, sco
 }
 const memberExpressionHandler: Handler<MemberExpression, any> = (node, scope) => {
 	const object: any = expressionHandler(node.object as Expression, scope)
-	return expressionHandler(node.property as Expression, object)
+	let value
+
+	if (node.computed) {
+		const key = expressionHandler(node.property as Expression, scope) as string
+		value = object[key]
+	} else {
+		value = expressionHandler(node.property as Expression, object)
+	}
+
+	if (typeof value == 'function') {
+		value = value.bind(object)
+	}
+
+	return value
 }
+
 const objectExpressionHandler: Handler<ObjectExpression, unknown> = (node, scope) => {
 	const obj: any = {}
 	const propertyList = node.properties as Property[]
@@ -426,6 +460,7 @@ const continueStatementHandler: Handler<ContinueStatement, unknown> = (
 // const directiveHandler: Handler<Directive, unknown> = (node, scope) => {} // ------
 const ifStatementHandler: Handler<IfStatement, unknown> = (node, scope, meta) => {
 	if (node.type !== 'IfStatement') return
+
 	const test = expressionHandler(node.test, scope)
 	if (test) statementHandler(node.consequent, scope, meta)
 	else if (node.alternate) statementHandler(node.alternate, scope, meta)
@@ -546,7 +581,14 @@ const patternHandler: Handler<Pattern, undefined> = (node, scope, value) => {
 	}
 	if (node.type === 'MemberExpression') {
 		const object: any = expressionHandler(node.object as Expression, scope)
-		const property = node.property
+		let property = node.property
+
+		if (node.computed) {
+			const keyValue = expressionHandler(property as Expression, scope) as string
+			object[keyValue] = value
+			return
+		}
+
 		if (property.type === 'Identifier') {
 			patternHandler(property as Pattern, object, value)
 			return
