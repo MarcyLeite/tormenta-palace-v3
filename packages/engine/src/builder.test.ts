@@ -1,11 +1,12 @@
-import { beforeEach, expect, test, describe } from 'bun:test'
+import type { FormElement, SheetObject } from './builder/builder.types'
+
 import builder from '@/builder'
-import { FormElement, SheetObject } from './builder/builder.types'
 import bundler from '@/bundler.test'
+import { beforeEach, expect, test, describe } from 'bun:test'
 
 describe('Builder', () => {
 	beforeEach(() => {})
-	test.only('should generate base sheet', () => {
+	test('should generate base sheet', () => {
 		const { sheet } = builder.createSheet([bundler.simpleAttributeComposer])
 		expect(sheet).toHaveProperty('attributes')
 

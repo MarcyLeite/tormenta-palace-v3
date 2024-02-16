@@ -1,4 +1,4 @@
-import { executePlsCode } from './evaluator'
+import { executePlsCode } from '@/evaluator'
 
 export interface PlsParser {
 	setGlobal: (key: string, value: any) => void

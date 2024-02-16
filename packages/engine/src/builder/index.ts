@@ -1,6 +1,8 @@
-import { PlsScript } from '@/global.types'
-import { Engine, createEngine, Entity } from '@/engine'
-import { SheetObject, FormElement } from './builder.types'
+import type { PlsScript } from '@/global.types'
+import type { Engine, Entity } from '@/engine'
+import type { SheetObject, FormElement } from './builder.types'
+
+import { createEngine } from '@/engine'
 
 interface QueueItem {
 	parent: string

@@ -1,6 +1,6 @@
 import { Parser } from 'acorn'
-import { Program, Statement } from 'estree'
-import { statementHandler, ParserMeta } from '@/handler'
+import type { Program, Statement } from 'estree'
+import { statementHandler, type ParserMeta } from '@/handler'
 
 export const executePlsCode = (palCode: string, scope: any = {}) => {
 	const program = Parser.parse(palCode, {

@@ -1,4 +1,4 @@
-import { BuilderBehavior } from '@/builder/builder.types'
+import type { BuilderBehavior } from '@/builder/builder.types'
 
 export interface EntityMeta {
 	title: string

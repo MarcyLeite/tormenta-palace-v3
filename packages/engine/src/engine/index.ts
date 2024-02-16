@@ -1,7 +1,7 @@
 import plsParser from 'pls-parser'
 import { createEntityHandler } from './entity-handler'
 export * from './entity-handler'
-import { PlsScript } from '@/global.types'
+import type { PlsScript } from '@/global.types'
 
 export const createEngine = (plsScriptList: PlsScript[]) => {
 	const parser = plsParser.parserFactory()

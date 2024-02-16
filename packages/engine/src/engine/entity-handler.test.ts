@@ -1,4 +1,5 @@
-import { createEntityHandler, EntityHandler, PlsInterface } from './entity-handler'
+import type { EntityHandler, PlsInterface } from './entity-handler'
+import { createEntityHandler } from './entity-handler'
 import { beforeEach, describe, expect, test } from 'bun:test'
 
 let entityHandler: EntityHandler
