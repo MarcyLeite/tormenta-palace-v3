@@ -1,4 +1,4 @@
-import type { DefinedDict } from '@/global.types';
+import type { DefinedDict } from '../global.types';
 import type { EntityMeta, Entity } from './entity-handler.types';
 export * from './entity-handler.types';
 export declare const createEntityHandler: () => {

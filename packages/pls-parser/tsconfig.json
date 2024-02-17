@@ -1,9 +1,10 @@
 {
 	"extends": ["../../tsconfig.json"],
 	"compilerOptions": {
-		"paths": { "@/*": ["./src/*"] },
-		"outDir": "types"
+		"moduleResolution": "Bundler",
+		"outDir": "types",
+		"paths": { "@/*": ["./src/*"] }
 	},
-	"include": ["./src/**/*", "index.ts"],
-	"exclude": ["test/**/*"]
+	"include": ["./src/**/*", "./index.ts", "./test/**/*"],
+	"exclude": ["./types/**/*"]
 }

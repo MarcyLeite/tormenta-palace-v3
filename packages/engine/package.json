@@ -1,8 +1,11 @@
 {
 	"name": "engine",
 	"module": "index.ts",
-	"types": "index.d.ts",
+	"types": "types/index.d.ts",
 	"type": "module",
+	"scripts": {
+		"gen-declare": "tsc && tsc-alias"
+	},
 	"dependencies": {
 		"pls-parser": "workspace:*"
 	},

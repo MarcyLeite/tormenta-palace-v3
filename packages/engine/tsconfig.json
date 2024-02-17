@@ -1,7 +1,10 @@
 {
 	"extends": ["../../tsconfig.json"],
 	"compilerOptions": {
+		"baseUrl": ".",
 		"outDir": "types",
 		"paths": { "@/*": ["./src/*"] }
-	}
+	},
+	"include": ["src/**/*", "index.ts"],
+	"exclude": ["types/**/*"]
 }
