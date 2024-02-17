@@ -1,6 +1,9 @@
 {
 	"name": "tormenta-bundle",
 	"type": "module",
+	"scripts": {
+		"build": "tsc"
+	},
 	"devDependencies": {
 		"bun-types": "latest",
 		"typescript": "^5.3.3",
