@@ -1,0 +1,19 @@
+{
+  "name": "api",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "tormenta-bundle": "workspace:*"
+  },
+  "dependencies": {
+    "engine": "workspace:*",
+    "firebase": "^10.8.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "gitmoji": {
+		"scopePrompt": true
+	}
+}
