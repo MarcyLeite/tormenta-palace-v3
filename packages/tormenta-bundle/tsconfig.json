@@ -1,0 +1,17 @@
+{
+	"extends": ["../../tsconfig.json"],
+
+	"compilerOptions": {
+		"module": "ESNext",
+		"moduleResolution": "Node",
+
+		"paths": { "@/*": ["./src/*"] },
+		"outDir": "build",
+
+		"declaration": false,
+		"allowImportingTsExtensions": false,
+		"emitDeclarationOnly": false
+	},
+	"include": ["src/**/*", "global.d.ts"],
+	"exclude": ["src/**/*.test.ts"]
+}
